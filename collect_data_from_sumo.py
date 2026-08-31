@@ -1,75 +1,97 @@
 import os
 import sys
 import traci
-import pandas as pd
-from csv import DictWriter
 from collections import defaultdict, deque
+from csv import DictWriter
+
+# Configurable step interval (seconds)
+step_interval = 1  # ← change this to 10, 15, etc. for slower stepping
 
 # Prepare CSV
-output_file = "traffic_training_data.csv"
-write_header = not os.path.exists(output_file)
+output_file = ""
+write_header = not os.path.exists(output_file) 
 
 # SUMO setup
 if "SUMO_HOME" in os.environ:
     tools = os.path.join(os.environ["SUMO_HOME"], "tools")
     sys.path.append(tools)
 else:
-    sys.exit("Declare 'SUMO_HOME'!")
+    sys.exit("❌ Please set the 'SUMO_HOME' environment variable.")
 
-sumo_cmd = ["sumo-gui", "-c", "copy6.sumocfg", "--step-length", "1"]
+# Start SUMO with GUI
+sumo_cmd = ["sumo-gui", "-c", "network.sumocfg", "--step-length", "10"]
 traci.start(sumo_cmd)
 
-# Buffer to store past lane data
-buffer = defaultdict(deque)  # lane_id -> deque of (time, density, speed_exit, vehicle_count)
+# Buffers
+previous_vehicles_on_lane = defaultdict(set)
+entry_times = defaultdict(deque)
+exit_times = defaultdict(deque)
+lane_data_buffer = defaultdict(deque)
 
-# Start simulation
 with open(output_file, mode='a', newline='') as csvfile:
-    fieldnames = ["time", "lane_id", "density", "speed_exit", "vehicle_count", "congested"]
+    fieldnames = ["time", "lane_id", "density", "entering_rate", "exit_rate", "vehicle_count", "congested"]
     writer = DictWriter(csvfile, fieldnames=fieldnames)
+
     if write_header:
         writer.writeheader()
-        csvfile.flush()  # Ensure header is saved immediately
+        csvfile.flush()
 
+    current_time = 0
     while traci.simulation.getMinExpectedNumber() > 0:
-        current_time = traci.simulation.getTime()
-        traci.simulationStep()
+        traci.simulationStep(current_time)
 
         for lane_id in traci.lane.getIDList():
             if lane_id.startswith(":"):
-                continue  # skip internal lanes
+                continue
 
             lane_length = traci.lane.getLength(lane_id)
-            vehicle_ids = traci.lane.getLastStepVehicleIDs(lane_id)
+            current_vehicle_ids = set(traci.lane.getLastStepVehicleIDs(lane_id))
 
-            speeds_near_exit = [
-                traci.vehicle.getSpeed(veh_id)
-                for veh_id in vehicle_ids
-                if lane_length - traci.vehicle.getLanePosition(veh_id) <= 20
-            ]
-            speed_exit = sum(speeds_near_exit) / len(speeds_near_exit) if speeds_near_exit else 0
+            prev_vehicle_ids = previous_vehicles_on_lane[lane_id]
+            entered = current_vehicle_ids - prev_vehicle_ids
+            exited = prev_vehicle_ids - current_vehicle_ids
+            previous_vehicles_on_lane[lane_id] = current_vehicle_ids
+
+            for _ in entered:
+                entry_times[lane_id].append(current_time)
+            for _ in exited:
+                exit_times[lane_id].append(current_time)
+
+            while entry_times[lane_id] and entry_times[lane_id][0] <= current_time - 60:
+                entry_times[lane_id].popleft()
+            while exit_times[lane_id] and exit_times[lane_id][0] <= current_time - 60:
+                exit_times[lane_id].popleft()
+
+            entering_rate = len(entry_times[lane_id])
+            exit_rate = len(exit_times[lane_id])
             density = traci.lane.getLastStepOccupancy(lane_id)
             vehicle_count = traci.lane.getLastStepVehicleNumber(lane_id)
 
-            # Store current data in buffer
-            buffer[lane_id].append((current_time, density, speed_exit, vehicle_count))
+            lane_data_buffer[lane_id].append((
+                current_time, density, entering_rate, exit_rate, vehicle_count
+            ))
 
-            # Check if we have old data from 30 seconds ago
-            while buffer[lane_id] and buffer[lane_id][0][0] <= current_time - 30:
-                old_time, old_density, old_speed, old_count = buffer[lane_id].popleft()
-                
-                # Define "congestion" based on current values (30s later)
+            while lane_data_buffer[lane_id] and lane_data_buffer[lane_id][0][0] <= current_time - 60:
+                old_time, old_density, old_in_rate, old_out_rate, old_count = lane_data_buffer[lane_id].popleft()
+
+                if old_density > 0.55:
+                    continue
+
                 congested = 1 if density > 0.5 else 0
 
-                # Write labeled old record
                 writer.writerow({
                     "time": old_time,
                     "lane_id": lane_id,
                     "density": old_density,
-                    "speed_exit": old_speed,
+                    "entering_rate": old_in_rate,
+                    "exit_rate": old_out_rate,
                     "vehicle_count": old_count,
                     "congested": congested
                 })
-                csvfile.flush()  # ✅ Write immediately
+                csvfile.flush()
+
+        # Step ahead by your custom interval
+        current_time += step_interval
 
 traci.close()
-print("✅ Labeled CSV created with 30s future congestion evaluation and live saving.")
+print(f"✅ Dataset created using {step_interval}s intervals.")

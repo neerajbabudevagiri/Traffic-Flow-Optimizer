@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Traffic Management Dashboard</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <style>
+    .route {
+      padding: 8px;
+      margin: 5px 0;
+      background: #f8f8f8;
+      border-radius: 4px;
+      border-left: 4px solid #FF0000;
+    }
+    .route.normal {
+      border-left-color: #00FF00;
+    }
+    #refresh-status {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div id="refresh-status">Last updated: Just now</div>
+  <div class="container">
+    <div id="map"></div>
+    
+    <div class="info-panel">
+      <div class="header">
+        <div class="junction-name">{{ junction }}</div>
+        <div class="time">Time: {{ time }}</div>
+      </div>
+      
+      <h2>Alternate Routes</h2>
+      <div id="diversions-container">
+        {% for route in diversions %}
+        <div class="route {% if not route.congested %}normal{% endif %}">
+          <strong>{{ route.destination }}</strong><br>
+          via {{ route.via }}<br>
+          <small>Clearing in: {{ route.clearance }}</small>
+        </div>
+        {% endfor %}
+      </div>
+  
+      <h2>Lane Metrics</h2>
+      <div class="table-container">
+        <table class="lane-table">
+          <thead>
+            <tr>
+              <th>Lane ID</th>
+              <th>Clearance Time (s)</th>
+              <th>Average Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lane in status_summary %}
+            <tr>
+              <td>{{ lane.lane }}</td>
+              <td>{{ lane.clearance_time }}</td>
+              <td>{{ lane.average_time }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+      </div>
+    </div>
+  </div>
+  
+  </div>
+  
+
+
+  <script>
+    // Map initialization
+    const imgWidth = 768;
+    const imgHeight = 795;
+    const bounds = [[0, 0], [imgHeight, imgWidth]];
+    const map = L.map('map', {
+      crs: L.CRS.Simple,
+      maxBounds: bounds,
+      maxBoundsViscosity: 1.0,
+      zoomControl: false
+    });
+
+    // Add background image
+    L.imageOverlay('{{ url_for("static", filename="image.png") }}', bounds).addTo(map);
+    map.fitBounds(bounds);
+    setTimeout(() => map.invalidateSize(), 300);
+
+    // Store route overlays
+    const routeOverlays = {};
+
+    // Initialize routes from JSON data
+    const routesData = JSON.parse('{{ routes|tojson|safe }}');
+    Object.entries(routesData).forEach(([laneId, route]) => {
+      routeOverlays[laneId] = L.polyline(
+        route.coords,
+        {
+          color: route.color || '#00FF00',
+          weight: 8,
+          opacity: 0.8
+        }
+      ).addTo(map);
+    });
+
+    // Update function with deep comparison
+    function updateBoard(data) {
+      // Update timestamp
+      const now = new Date();
+      document.getElementById('refresh-status').textContent = 
+        `Last updated: ${now.toLocaleTimeString()}`;
+      
+      // Update time display
+      if (data.time) {
+        document.querySelector('.time').textContent = `Time: ${data.time}`;
+      }
+      
+      // Update route colors on map
+      if (data.routes) {
+        Object.entries(data.routes).forEach(([laneId, route]) => {
+          if (routeOverlays[laneId]) {
+            // Only update if color actually changed
+            if (routeOverlays[laneId].options.color !== route.color) {
+              routeOverlays[laneId].setStyle({
+                color: route.color || '#00FF00'
+              });
+            }
+          } else {
+            // Add new route if it doesn't exist
+            routeOverlays[laneId] = L.polyline(
+              route.coords,
+              {
+                color: route.color || '#00FF00',
+                weight: 8,
+                opacity: 0.8
+              }
+            ).addTo(map);
+          }
+        });
+      }
+      
+      // Update diversions list
+      const container = document.getElementById('diversions-container');
+      if (container && data.diversions) {
+        container.innerHTML = data.diversions.map(div => {
+          const statusClass = div.congested ? '' : 'normal';
+          return `
+            <div class="route ${statusClass}">
+              <strong>${div.destination || 'Unknown'}</strong><br>
+              via ${div.via || 'Alternate route'}<br>
+              <small>Clearing in: ${div.clearance || 'N/A'}</small>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Auto-refresh with cache busting
+    function refreshData() {
+      axios.get('/update?t=' + new Date().getTime()) // Cache busting
+        .then(response => {
+          updateBoard(response.data);
+        })
+        .catch(error => {
+          console.error('Refresh error:', error);
+        })
+        .finally(() => {
+          // Schedule next refresh regardless of success/failure
+          setTimeout(refreshData, 5000);
+        });
+    }
+
+    // Initial load and start auto-refresh cycle
+    refreshData();
+  </script>
+</body>
+</html>
