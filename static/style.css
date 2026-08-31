@@ -1,0 +1,231 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f0f2f5;
+}
+
+.header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.junction-name {
+  font-size: 1.8em;
+  font-weight: bold;
+}
+
+.time {
+  font-size: 1.2em;
+  color: #ecf0f1;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+#map {
+  flex: 3;
+  height: 100%;
+  background-color: #e0e0e0;
+}
+
+.info-panel {
+  flex: 1;
+  background-color: white;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+}
+
+.info-panel h2 {
+  margin: 15px 0;
+  color: #2c3e50;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.route {
+  background: white;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-left: 4px solid #3498db;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.route:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.route strong {
+  color: #2c3e50;
+  font-size: 1.1em;
+}
+
+.route small {
+  color: #7f8c8d;
+  font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  #map {
+    height: 60vh;
+  }
+}
+
+.route {
+  padding: 8px;
+  margin: 5px 0;
+  background: #f8f8f8;
+  border-radius: 4px;
+}
+
+/* Color indicators for congestion levels */
+.congested {
+  border-left: 4px solid #FF0000;
+}
+
+.warning {
+  border-left: 4px solid #FFA500;
+}
+
+.normal {
+  border-left: 4px solid #00FF00;
+}
+/* Lane summary table styling */
+.lane-summary-table {
+  width: 100%;
+  margin-top: 10px;
+  background: white;
+  border-collapse: collapse;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lane-summary-table th,
+.lane-summary-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.lane-summary-table th {
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+.lane-summary-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+#map {
+  width: 50%;
+  height: 100%;
+  background-color: #e0e0e0;
+}
+
+.info-panel {
+  width: 50%;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: white;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.table-container {
+  margin-top: 20px;
+  max-height: 40vh;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.lane-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lane-table th, .lane-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.lane-table th {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.lane-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f0f2f5;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+#map {
+  width: 50%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f0f2f5;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+#map {
+  width: 50%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}

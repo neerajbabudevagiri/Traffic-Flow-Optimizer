@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-04-22 05:47:55 by Eclipse SUMO netedit Version 1.22.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <flow id="f_0" begin="2.00" from="-11" to="2199" via="15 -144 148 172 196 -1956 1960" end="5000.00" vehsPerHour="2000"/>
+    <flow id="f_10" begin="2.00" color="white" from="-2182" to="-2228" via="2192" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_11" begin="2.00" color="white" from="592" to="75" via="-37 31 60" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_12" begin="2.00" color="white" from="-58" to="-844" via="60 79" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_13" begin="2.00" color="white" from="92" to="1025" via="214 991" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_14" begin="2.00" color="white" from="-2199" to="1988" via="-1987" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_15" begin="2.00" color="white" from="-1737" to="-1034" via="-1492 -1209 -1154 1025 -879 873 -1150 1194 1002 -1000" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_16" begin="2.00" color="white" from="-1154" to="-1595" via="-1025 -991 1777 1781 -1741 -1597 -1242 1212" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_17" begin="2.00" color="white" from="-2316" to="2271" via="2284 -2283 -2230 -2165 1774 -1925 -462 474 1775 -1758 -1755 2149 2220" end="10000.00" vehsPerHour="10000"/>
+    <flow id="f_18" begin="2.00" color="white" from="-120" to="-31" via="-75 -60" end="10000.00" vehsPerHour="10000"/>
+    <flow id="f_19" begin="2.00" color="white" from="991" to="1725" via="1025 1168 -1205 1209 1492" end="10000.00" vehsPerHour="10000"/>
+    <flow id="f_3" begin="2.00" color="red" from="588" to="43" via="-444 -55" end="4500.00" vehsPerHour="2000"/>
+    <flow id="f_4" begin="2.00" color="cyan" from="1249" to="15" via="-340 -202 71 -3" end="5500.00" vehsPerHour="4000"/>
+    <flow id="f_6" begin="2.00" color="white" from="-1725" to="2251" via="-1722 -1474 -1204 -1150 1148 1168 1242 1597 1747 1951 1980 2173" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_7" begin="2.00" color="white" from="-2128" to="1604" via="-1962" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_8" begin="2.00" color="white" from="-2273" to="-1610" via="-2220 -2151 -1918" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_9" begin="2.00" color="white" from="-1972" to="2232" via="-1934 -1774 2165" end="10000.00" vehsPerHour="2000"/>
+    <flow id="f_5" begin="7.00" color="cyan" from="-45" to="588" via="55 444" end="5000.00" vehsPerHour="2000"/>
+    <flow id="f_1" begin="10.00" color="red" from="2158" to="2243" via="-2020 -184 196 -1956 -1940 1946 1980 2173" end="5500.00" vehsPerHour="2000"/>
+    <flow id="f_2" begin="10.00" color="cyan" from="-219" to="2213" via="-190 196 -1956 1960" end="4500.00" vehsPerHour="1000"/>
+</routes>
